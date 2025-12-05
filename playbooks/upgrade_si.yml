@@ -1,25 +1,22 @@
-# This playbook is used to upgrade Standalone Grid from 12c to 19c.
-# Install 19c RDBMS.
-# Upgrades the user listed databases from 12c to 19c.
-#
-# Before executing this playbook, please refer the documentation inside the collection_dir/docs directory.
-#
-#- hosts: all                            # Provide the name of the target lpar registered in ansible inventory.
-#  remote_user: root                     # This needs to be run by "root" user.
-#  gather_facts: False
-#  vars_files:
-#      - vars/upgrade/upgrade_si_vars.yml	# update all the required variables
-#      - vars/vault.yml				# update the passwords
-
-- hosts: ansible_db
+- hosts: pilotdb
   remote_user: root
-  gather_facts: False
+  gather_facts: true
   vars_files:
-      - vars/upgrade/upgrade_si_vars.yml
-      - vars/vault.yml
+    - vars/upgrade/upgrade_si_vars.yml
+    - vars/vault.yml
+
   roles:
      - role: podba_si_has_upgrade
        tags: si_has_upgrade
-     - role: podba_oracle_install
-       tags: oracle_install
-     - role: podba_db_upgrade
+
+  tasks:
+
+    - name: Import oracle_install role
+      ansible.builtin.import_role:
+        name: ibm.power_aix_oracle.oracle_install_db
+        tasks_from: oracle_install.yml
+      tags: oracle_install
+
+    - name: Run podba_db_upgrade role
+      ansible.builtin.import_role:
+        name: podba_db_upgrade

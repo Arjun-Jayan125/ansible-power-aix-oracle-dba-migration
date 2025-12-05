@@ -3,7 +3,7 @@
 
 # Variables
 
-prechecks={{ temp_dir }}/logs/prechecks.log
+prechecks={{ logs_dir }}/prechecks.log
 olr_path=/etc/oracle/olr.loc
 inv_check=`cat {{ ora_inventory }}/ContentsXML/inventory.xml |grep {{ grid_home_prev }} | wc -l`
 swap_check=`lsps -a| tail -n +2| awk '{sum+=$4} END {print sum}'`
@@ -14,8 +14,8 @@ hasversion={{ has_version }}
 mandatory_patch_12=`$ORACLE_HOME/OPatch/opatch lsinventory | grep 21255373 |grep -v grep|wc -l`
 mandatory_patch_122=`$ORACLE_HOME/OPatch/opatch lsinventory | grep 27006180 |grep -v grep|wc -l`
 apply_ru="{{ apply_ru }}"
-check_grid=`cat {{ ora_inventory }}/ContentsXML/inventory.xml |grep {{ grid_home }} | grep "^[^#;]"| wc -l`
-ruid=$(expr "$ru_zip" : '^.*p\([0-9]*\)_.*$')
+check_grid=`cat {{ ora_inventory }}/ContentsXML/inventory.xml |grep {{ grid_ora_home }} | grep "^[^#;]"| wc -l`
+ruid=$(expr "$ru_file" : '^.*p\([0-9]*\)_.*$')
 
 # Main
 

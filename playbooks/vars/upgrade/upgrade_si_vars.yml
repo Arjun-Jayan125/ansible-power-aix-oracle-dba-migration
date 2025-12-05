@@ -12,7 +12,7 @@
 ###############################################################################
 
 ## Section A - Common Variables
-
+# work_dir: This is the temporary directory for this playbook to store all the scripts, logs and other necessary file. Provide a top level path and the script will create required directories. Example: /tmp/podba
 # ora_binary_location: Oracle binaries staging option, either local|nfs|remote.
 # ora_nfs_host: If ora_binary_location: nfs, provide the resolvable hostname of the NFS server.
 # ora_nfs_device: NFS mount path.
@@ -24,13 +24,14 @@
 # opatch_sw: Provide the latest Opatch utility along with the path on Remote or Local or NFS.
 # ru_stage: Provide the full path to extract the Release Update patch.
 # ru_zip: Release Update patch zipfile, which is placed in "sw_stage" path on target lpar.
-# autoupgrade_util_remote: If ora_binary_location: nfs then, provide the path of autoupgrade.jar utility on the Ansible controller.
-# autoupgrade_util: Provide the autoupgrade.jar path on the Local or NFS server. This path will also be used by Ansible to copy from Ansible controller when ora_binary_location is set to remote.
+# autoupgrade_util_remote: This is the path to "autoupgrade.jar" utility present on the Ansible controller.
+# autoupgrade_util: This is the path to "autoupgrade.jar" utility present on either local or on NFS server. 
 # ora_inventory - Provide the Central Oracle inventory path on the AIX lpar.
 # mgmt_opt - Update the CLOUD_CONTROL when you want to manage your Oracle Grid Infrastructure with Enterprise Manager Cloud Control. Leave it blank otherwise.
 # oms_host - Enterprise Cloud Control Hostname. Response file parameter: oracle.install.config.omsHost=
 # oms_port - Enterprise Cloud Control Host Port number. Response file parameter: oracle.install.config.omsPort=
 # oms_em_user - Enterprise Cloud Control Admin Username. Response file parameter: oracle.install.config.emAdminUser=
+# grid_asm_flag: Set this to True if the database is on ASM. Otherwise set it to false.
 
 ## Section B - Single Instance Grid Variables
 
@@ -61,33 +62,45 @@
 # autoupgrade_stage: Provide the path to the latest autoupgrade.jar utility on the target lpar.
 # global_log_dir: Autoupgrade Global Directory. Provide an empty path on the AIX lpar.
 # Make sure to follow the given dictionary pattern along with indentation. 
-# databases:  # Based on the requirement, more number of databases can be added as a list with the following set of variables.
+# databases:  # Based on the requirement, more number of databases can be added as a list with the following set of variables as shown below
 #     - source_db_name: Provide 12c Database Name, which needs to be upgraded.
 #       source_db_home - Provide 12c Oracle Home.
-#       target_db_home - Provide 19c Oracle Home, Provide a Non existent path if 19c RDBMS is not already installed.
+#       ora_home - Provide 19c Oracle Home, Provide a Non existent path if 19c RDBMS is not already installed.
 #       log_dir - Provide a Non existent path on AIX lpar for Autoupgrade logs files.
 #       start_time: NOW
 #       restoration -  If yes, creates a restore point before upgrade, Flashback must be ON for this option. Set to 'no', if you don't want a restore point to be created.
-# upgrade_node: localhost
+#       upgrade_node: localhost
 #       run_utlrp: 'yes'
 #       timezone_upg: 'yes'
 #       target_cdb_name - This is only required when upgrading 12c Non CDB into a 19c CDB.
 #       target_pdb_name - This is an optional parameter which will rename the 12c Non-CDB and plugin into 19c CDB. To be used when "target_cdb_name" is set.
+#     - source_db_name: Provide the 2nd 12c Database Name, which needs to be upgraded.
+#       source_db_home: Provide the 2nd 12c Oracle Home.
+#       ora_home - Provide the 2nd 19c Oracle Home, Provide a Non existent path if 19c RDBMS is not already installed.
+#       log_dir -
+#       start_time: NOW
+#       restoration - 
+#       upgrade_node: localhost
+#       run_utlrp: 'yes'
+#       timezone_upg: 'yes'
+#       target_cdb_name -
+#       target_pdb_name -
 
 
 # Section A - Update the Common Variables.
 
-ora_binary_location: remote
-ora_nfs_host: 129.40.76.1
+work_dir: /tmp/ansible
+ora_binary_location: local
+ora_nfs_host: 192.140.176.129
 ora_nfs_device: /repos
 ora_nfs_filesystem: /repos
 
-grid_sw: /home/ansible/binaries/V982588-01_193000_grid.zip
-db_oracle_sw: /home/ansible/binaries/V982583-01_193000_db.zip
+grid_sw: /repos/images/oracle/19c/V982588-01_193000_grid.zip
+database_sw: /repos/images/oracle/19c/V982583-01_193000_db.zip
 apply_ru: True
-ru_stage: /backup/stage/RU
-opatch_sw: /home/ansible/binaries/opatch-12.2.0.1.42_p6880880_190000_AIX64-5L.zip
-ru_zip: /home/ansible/binaries/p35642822_190000_AIX64-5L_RU19.21.zip
+ru_stage: /stage/19RU
+opatch_file: /repos/images/oracle/opatch/12.2.0.1.44/p6880880_121010_AIX64-5L.zip
+ru_file: /repos/images/oracle/19c/RU19.26/p37257886_190000_AIX64-5L_GI_RU19.26.zip
 autoupgrade_util_remote: /home/ansible/binaries/autoupgrade.jar
 autoupgrade_util: /home/oracle/autoupgrade.jar
 
@@ -96,26 +109,26 @@ mgmt_opt:
 oms_host:
 oms_port:
 oms_em_user:
+ora_oinstall_group: oinstall
+ora_group: dba
+
+ora_base: /u02/app/base
+ignoreprecheck: False
+
+grid_asm_flag: True
 
 # Section B - Update the Single Instance Grid Variables
 
-grid_home_prev: /u01/base/grid12c
-grid_home: /u02/base/grid19c
-
-gi_oracle_base: /u02/base
-grid_user: oracle
-grid_group: oinstall
-gi_osdba_group: dba
+grid_home_prev: /u01/grid12c/home
+grid_ora_home: /u02/grid19c/home
+ora_grid_user: grid
 gi_osasm_group: oinstall
 gi_osoper_group:
 gi_cluster_name:
 
 # Section C - Update the Variables for Oracle 19c RDBMS installation
 
-db_oracle_base: /u02/base
-db_oracle_user: oracle
-db_oinstall_group: oinstall
-db_osdba_group: dba
+ora_user: oracle
 db_osoper_dba:
 db_osbkup_dba:
 db_osdg_dba:
@@ -125,14 +138,14 @@ db_osrac_dba:
 # Section D - Variables for Database [Please Don't Change the dictionary list format. This format is referenced in the code.]
 
 autoupgrade_stage: /home/oracle
-global_log_dir: /u02/autoupgrade_1
+global_log_dir: /u02/autoupgrade
 databases:  
       - source_db_name: podba
-        source_db_home: /u01/base/db12c
-        target_db_home: /u02/base/db19c
-        log_dir: /u02/autoupgrade_1/dbupgrdlogs
+        source_db_home: /u01/db12c/home
+        ora_home: /u02/db19c/home
+        log_dir: "{{ global_log_dir }}/dbupgrdlogs"
         start_time: NOW
-        restoration: 'yes'
+        restoration: 'no'
         upgrade_node: localhost
         run_utlrp: 'yes'
         timezone_upg: 'yes'

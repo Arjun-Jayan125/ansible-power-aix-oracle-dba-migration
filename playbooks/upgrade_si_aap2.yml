@@ -1,9 +1,15 @@
 - hosts: all
   remote_user: root
-  gather_facts: False
+  gather_facts: true
   roles:
      - role: podba_si_has_upgrade
        tags: si_has_upgrade
-     - role: podba_oracle_install
-       tags: oracle_install
-     - role: podba_db_upgrade
+  tasks:
+    - name: Import oracle_install role
+      ansible.builtin.import_role:
+        name: ibm.power_aix_oracle.oracle_install_db
+        tasks_from: oracle_install.yml
+      tags: oracle_install
+    - name: Run podba_db_upgrade role
+      ansible.builtin.import_role:
+        name: podba_db_upgrade

@@ -20,6 +20,12 @@ Following functionalities can be achieved with this collection.
 
 Version Change:
 
+PODBA v2.0.9
+
+- Tested role separation during upgrade.
+- Fixed the bug in oracle_opatch module, ansible interpreter is using the shemang python. Removed shebang from oracle_opatch module. 
+- Upgrade module will import oracle install and gi install roles from Oracle Single Instance collection
+
 PODBA v2.0.8
 
 - Refactored oradb_create role for integration with Oracle SI ansible collection.
