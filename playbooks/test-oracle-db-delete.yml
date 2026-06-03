@@ -1,0 +1,23 @@
+---
+- hosts: dbhost
+  gather_facts: false
+  remote_user: oracle
+  vars_files:
+    - vars/vault.yml
+  vars:
+    real_oracle_home: /u01/19c/database/dbhome_1
+
+  tasks:
+    - name: Test oracle_db delete database
+      oracle_db:
+        oracle_home: "{{ real_oracle_home }}"
+        db_name: codextst
+        sid: codextst
+        sys_password: "{{ default_dbpass }}"
+        hostname: 129.40.76.242
+        port: 1521
+        state: absent
+      environment:
+        ORACLE_HOME: "{{ real_oracle_home }}"
+        LD_LIBRARY_PATH: "{{ real_oracle_home }}/lib"
+        PATH: "{{ real_oracle_home }}/bin:{{ ansible_env.PATH | default('') }}"

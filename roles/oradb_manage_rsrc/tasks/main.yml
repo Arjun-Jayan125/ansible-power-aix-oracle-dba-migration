@@ -6,9 +6,9 @@
     user: "{{ db_user }}"
     password: "{{ db_password_cdb }}"
     mode: "{{ db_mode }}"
-    name: ansigroup1
+    name: "{{ consumer_group }}"
     state: "{{ state }}"
-    comments: This is a test consumer resource group
+    comments: "{{ comments }}"
     grant: "{{ grant }}"
     map_oracle_user: "{{ map_oracle_user }}"
     map_service_name: "{{ map_service_name }}"

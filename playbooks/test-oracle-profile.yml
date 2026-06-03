@@ -1,0 +1,17 @@
+- hosts: localhost
+  connection: local
+  vars_files:
+    - vars/vault.yml
+  tasks:
+    - oracle_profile:
+        name: TEST_ORACLEDB_PROFILE
+        attribute_name: ["sessions_per_user"]
+        attribute_value: ["6"]
+        state: absent
+        hostname: 129.40.76.242
+        port: 1521
+        service_name: prod
+        user: sys
+        password: "{{ default_dbpass }}"
+        oracle_home: ""
+        mode: sysdba

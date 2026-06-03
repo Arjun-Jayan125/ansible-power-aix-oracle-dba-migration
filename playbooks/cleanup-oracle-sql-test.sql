@@ -1,0 +1,9 @@
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE oracle_sql_oracledb_test PURGE';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE != -942 THEN
+      RAISE;
+    END IF;
+END;
+/

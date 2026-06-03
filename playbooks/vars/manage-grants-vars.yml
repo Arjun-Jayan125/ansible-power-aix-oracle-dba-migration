@@ -1,12 +1,11 @@
 # Grant/Revoke Database Users privileges - Variables section
-hostname: ansible_db                        # AIX Lpar hostname where the database is running.
+hostname: 129.40.76.242                     # AIX Lpar hostname where the database is running.
 listener_port: 1521                         # Database port number.
-oracle_db_home: /home/ansible/oracle_client      # Oracle Instant Client path on the ansible controller.
 
 oracle_databases:                           # Database users list to be created
       - users:
          - schema: testuser1              # Username to be created.
-        service_name: devpdb                 # Database service name.
+        service_name: prod                   # Database service name.
         grants_mode: enforce                # enforce|append.
         grants:
          - connect                          # Provide name of the privilege as a list to grant to the user.

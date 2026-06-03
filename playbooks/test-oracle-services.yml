@@ -1,0 +1,19 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  vars_files:
+    - vars/vault.yml
+  tasks:
+    - name: Test oracle_services
+      oracle_services:
+        name: ORACLEDB_TEST_SVC
+        oracle_home: ""
+        database_name: prod
+        hostname: 129.40.76.242
+        port: 1521
+        service_name: prod
+        user: sys
+        password: "{{ default_dbpass }}"
+        mode: sysdba
+        state: absent

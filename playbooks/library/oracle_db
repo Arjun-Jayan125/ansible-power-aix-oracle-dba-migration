@@ -207,8 +207,8 @@ options:
 
 
 notes:
-	- cx_Oracle needs to be installed
-requirements: [ "cx_Oracle" ]
+	- oracledb needs to be installed
+requirements: [ "oracledb" ]
 author: Mikael Sandström, oravirt@gmail.com, @oravirt
 '''
 
@@ -277,14 +277,14 @@ oracle_db:
 	environment: "{{ oracle_env }}"
 	run_once: True
 '''
-import os, re, time
+import os, re, time, subprocess
 
 try:
-	import cx_Oracle
+	import oracledb
 except ImportError:
-	cx_oracle_exists = False
+	oracledb_exists = False
 else:
-	cx_oracle_exists = True
+	oracledb_exists = True
 
 
 def get_version(module, msg, oracle_home):
@@ -536,17 +536,21 @@ def create_db (module, msg, oracle_home, sys_password, system_password, dbsnmp_p
 
 def remove_db (module, msg, oracle_home, db_name, sid, db_unique_name, sys_password):
 
-	cursor = getconn(module,msg)
 	israc = ''
-	israc_sql = 'select parallel,instance_name,host_name from v$instance'
-	israc_ = execute_sql_get(module,msg,cursor,israc_sql)
+	israc_ = None
 	remove_db = ''
+	if oracledb_exists:
+		cursor = getconn(module,msg)
+		israc_sql = 'select parallel,instance_name,host_name from v$instance'
+		israc_ = execute_sql_get(module,msg,cursor,israc_sql)
 	if gimanaged:
 		if db_unique_name is not None:
 			remove_db = db_unique_name
-		elif sid is not None and israc_[0][0] == 'YES':
+		elif sid is not None and israc_ is not None and israc_[0][0] == 'YES':
 			remove_db = db_name
-		elif sid is not None and israc_[0][0] == 'NO':
+		elif sid is not None and israc_ is not None and israc_[0][0] == 'NO':
+			remove_db = sid
+		elif sid is not None:
 			remove_db = sid
 		else:
 			remove_db = db_name
@@ -762,6 +766,8 @@ def start_db (module,msg, oracle_home, db_name, db_unique_name, sid):
 		command = '%s/bin/srvctl start database -d %s' % (oracle_home,db_name)
 		(rc, stdout, stderr) = module.run_command(command)
 		if rc != 0:
+			if ('PRCC-1014' in stdout or 'PRCR-1004' in stdout or 'CRS-5702' in stdout or 'already running' in stdout.lower()):
+				return False
 			msg = 'Error - STDOUT: %s, STDERR: %s, COMMAND: %s' % (stdout, stderr, command)
 			module.fail_json(msg=msg, changed=False)
 		else:
@@ -834,9 +840,8 @@ def execute_sql_get(module, msg, cursor, sql):
 	try:
 		cursor.execute(sql)
 		result = (cursor.fetchall())
-	except cx_Oracle.DatabaseError as exc:
-		error, = exc.args
-		msg = 'Something went wrong while executing sql_get - %s sql: %s' % (error.message, sql)
+	except oracledb.DatabaseError as exc:
+		msg = 'Something went wrong while executing sql_get - %s sql: %s' % (str(exc), sql)
 		module.fail_json(msg=msg, changed=False)
 		return False
 	return result
@@ -845,31 +850,33 @@ def execute_sql(module, msg, cursor, sql):
 
 	try:
 		cursor.execute(sql)
-	except cx_Oracle.DatabaseError as exc:
-		error, = exc.args
-		msg = 'Something went wrong while executing sql - %s sql: %s' % (error.message, sql)
+	except oracledb.DatabaseError as exc:
+		msg = 'Something went wrong while executing sql - %s sql: %s' % (str(exc), sql)
 		module.fail_json(msg=msg, changed=False)
 		return False
 	return True
 
 def getconn(module,msg):
 
+	if not oracledb_exists:
+		msg = "The oracledb module is required for SQL connection operations. 'pip install oracledb' should do the trick. If oracledb is installed, make sure ORACLE_HOME & LD_LIBRARY_PATH is set"
+		module.fail_json(msg=msg)
+
 	hostname = os.uname()[1]
 	wallet_connect = '/@%s' % service_name
 	try:
 		if (not user and not password ): # If neither user or password is supplied, the use of an oracle wallet is assumed
 			connect = wallet_connect
-			conn = cx_Oracle.connect(wallet_connect, mode=cx_Oracle.SYSDBA)
+			conn = oracledb.connect(dsn=wallet_connect, mode=oracledb.SYSDBA)
 		elif (user and password ):
-			dsn = cx_Oracle.makedsn(host=hostname, port=port, service_name=service_name, )
+			dsn = oracledb.makedsn(host=hostname, port=port, service_name=service_name)
 			connect = dsn
-			conn = cx_Oracle.connect(user, password, dsn, mode=cx_Oracle.SYSDBA)
+			conn = oracledb.connect(user=user, password=password, dsn=dsn, mode=oracledb.SYSDBA)
 		elif (not(user) or not(password)):
-			module.fail_json(msg='Missing username or password for cx_Oracle')
+			module.fail_json(msg='Missing username or password for oracledb')
 
-	except cx_Oracle.DatabaseError as exc:
-			error, = exc.args
-			msg = 'Could not connect to database - %s, connect descriptor: %s' % (error.message, connect)
+	except oracledb.DatabaseError as exc:
+			msg = 'Could not connect to database - %s, connect descriptor: %s' % (str(exc), connect)
 			module.fail_json(msg=msg, changed=False)
 
 	cursor = conn.cursor()
@@ -996,19 +1003,11 @@ def main():
 		msg = 'ORACLE_HOME variable not set. Please set it and re-run the command'
 		module.fail_json(msg=msg, changed=False)
 
-	if not cx_oracle_exists:
-		msg = "The cx_Oracle module is required. 'pip install cx_Oracle' should do the trick. If cx_Oracle is installed, make sure ORACLE_HOME & LD_LIBRARY_PATH is set"
-		module.fail_json(msg=msg)
-
-
 	# Decide whether to use srvctl or sqlplus
 	if os.path.exists('/etc/oracle/olr.loc'):
 		gimanaged = True
 	else:
 		gimanaged = False
-		if not cx_oracle_exists:
-			msg = "The cx_Oracle module is required. 'pip install cx_Oracle' should do the trick. If cx_Oracle is installed, make sure ORACLE_HOME & LD_LIBRARY_PATH is set"
-			module.fail_json(msg=msg)
 
 	# Connection details for database
 	user = 'sys'
@@ -1034,8 +1033,8 @@ def main():
 				msg = "Database started."
 				module.exit_json(msg=msg, changed=True)
 			else:
-				msg = "Startup failed. %s" % msg
-				module.fail_json(msg=msg, changed=False)
+				msg = "Database already started."
+				module.exit_json(msg=msg, changed=False)
 
 
 
@@ -1044,10 +1043,16 @@ def main():
 			if create_db(module, msg, oracle_home, sys_password, system_password, dbsnmp_password, db_name, sid, db_unique_name, responsefile, template, cdb, local_undo, datafile_dest, recoveryfile_dest,
 						storage_type, dbconfig_type, racone_service, characterset, memory_percentage, memory_totalmb, nodelist, db_type, amm, initparams, customscripts,datapatch, domain):
 				newdb = True
+				if not oracledb_exists:
+					msg = 'Database %s created. SQL post-configuration skipped because oracledb is not installed on the target host.' % (db_name)
+					module.exit_json(msg=msg, changed=True)
 				ensure_db_state (module,msg,oracle_home,db_name,db_unique_name,sid, archivelog, force_logging, supplemental_logging, flashback, default_tablespace_type,default_tablespace,default_temp_tablespace, timezone)
 			else:
 				module.fail_json(msg=msg, changed=False)
 		else:
+			if not oracledb_exists:
+				msg = 'Database %s already exists. SQL state enforcement skipped because oracledb is not installed on the target host.' % (db_name)
+				module.exit_json(msg=msg, changed=False)
 			ensure_db_state (module,msg,oracle_home,db_name,db_unique_name,sid, archivelog, force_logging, supplemental_logging, flashback, default_tablespace_type,default_tablespace,default_temp_tablespace, timezone)
 			# msg = 'Database %s already exists' % (db_name)
 			# module.exit_json(msg=msg, changed=False)

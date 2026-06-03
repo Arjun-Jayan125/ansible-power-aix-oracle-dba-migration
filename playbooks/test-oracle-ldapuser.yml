@@ -1,0 +1,26 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  vars_files:
+    - vars/vault.yml
+  tasks:
+    - name: Test oracle_ldapuser
+      oracle_ldapuser:
+        hostname: 129.40.76.242
+        port: 1521
+        service_name: prod
+        user: sys
+        password: "{{ default_dbpass }}"
+        mode: sysdba
+        ldap_connect: ldap://YOUR_LDAP_HOST:389
+        ldap_binddn: YOUR_BIND_DN
+        ldap_bindpassword: YOUR_BIND_PASSWORD
+        ldap_user_basedn: YOUR_USER_BASE_DN
+        ldap_user_filter: "(sAMAccountName=TEST_USER)"
+        ldap_username_attribute: sAMAccountName
+        user_profile: LDAP_USER
+        user_default_tablespace: USERS
+        user_temp_tablespace: TEMP
+        user_grants:
+          - create session
