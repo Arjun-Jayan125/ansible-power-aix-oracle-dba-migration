@@ -1,6 +1,0 @@
-hostname: 129.40.76.242                        # AIX hostname where the Database is running.
-service_name: prod                             # Database service name.
-listener_port: 1521                            # Database port number.
-interval: 45                                   # Snapshot interval (in minutes). '0' disables.
-retention: 25                                  # Snapshot Retention period (in days)
-# oracle_db_home not needed - oracle_awr module uses Thin mode (pure Python, no Oracle client required)
