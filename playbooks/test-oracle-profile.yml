@@ -8,7 +8,7 @@
         attribute_name: ["sessions_per_user"]
         attribute_value: ["6"]
         state: absent
-        hostname: 129.40.76.242
+        hostname: <your_database_host>
         port: 1521
         service_name: prod
         user: sys

@@ -4,5 +4,5 @@
 # [standby]
 # standby-db ansible_host=222.22.22.222
 
-dbhost ansible_host=129.40.76.242 ansible_user=oracle ansible_python_interpreter=/usr/bin/python
+dbhost ansible_host=<your_database_host> ansible_user=oracle ansible_python_interpreter=/usr/bin/python
 localhost ansible_connection=local ansible_python_interpreter=/Library/Frameworks/Python.framework/Versions/3.10/bin/python3

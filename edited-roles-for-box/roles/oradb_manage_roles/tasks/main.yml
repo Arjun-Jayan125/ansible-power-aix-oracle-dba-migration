@@ -1,0 +1,22 @@
+---
+# tasks file for manage-db-users
+- name: Manage roles
+  oracle_role:
+          role={{ item.1.name }}
+          state={{ item.0.state }}
+          hostname={{ hostname }}
+          port={{ listener_port_template }}
+          service_name={{ item.0.service_name }}
+          user={{ db_user }}
+          password={{ db_password_cdb }}
+          mode={{ db_mode }}
+  with_subelements:
+      - "{{ oracle_databases }}"
+      - roles
+      - flags:
+        skip_missing: True
+  environment: "{{ oracle_env }}"
+  when: oracle_databases is defined and item.1 is defined
+  loop_control:
+      label: "port: {{ listener_port_template }}, service: {{ item.0.service_name }}, role: {{ item.1.name }}, state: {{ item.0.state }}"
+  tags: users,grants

@@ -1,5 +1,5 @@
 # Create/Drop Database Users - Variables section
-hostname: 129.40.76.242                     # AIX Lpar hostname where the database is running.
+hostname: <your_database_host>              # AIX Lpar hostname where the database is running.
 listener_port: 1521                         # Database port number.
 
 oracle_databases:                           # Database users list to be created

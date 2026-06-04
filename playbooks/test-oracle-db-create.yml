@@ -16,7 +16,7 @@
         sys_password: "{{ default_dbpass }}"
         system_password: "{{ default_dbpass }}"
         dbsnmp_password: "{{ default_dbpass }}"
-        hostname: 129.40.76.242
+        hostname: <your_database_host>
         port: 1521
         state: present
         cdb: false

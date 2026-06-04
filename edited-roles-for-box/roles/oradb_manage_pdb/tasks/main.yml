@@ -1,0 +1,5 @@
+- include_tasks: create_pdb.yml
+  when: create_pdb or plug_pdb
+
+- include_tasks: drop_pdb.yml
+  when: drop_pdb or unplug_pdb

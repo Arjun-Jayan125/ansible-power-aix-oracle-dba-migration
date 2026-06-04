@@ -1,4 +1,4 @@
-hostname: 129.40.76.242                 # AIX hostname where the Database is running.
+hostname: <your_database_host>          # AIX hostname where the Database is running.
 listener_port: 1521                   # Database listener port.
 oracle_db_name: prod                  # Database Service Name.
 # oracle_db_home not needed - oracle_pdb module uses Thin mode (pure Python, no Oracle client required)

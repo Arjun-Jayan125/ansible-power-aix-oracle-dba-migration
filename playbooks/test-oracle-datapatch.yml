@@ -12,8 +12,8 @@
       oracle_datapatch:
         oracle_home: "{{ real_oracle_home }}"
         db_name: prod
-        sid: prod
-        hostname: 129.40.76.242
+        sid: <your_sid>
+        hostname: <your_database_host>
         port: 1521
         service_name: prod
         user: sys

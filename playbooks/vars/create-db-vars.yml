@@ -2,18 +2,18 @@
 oracle_user: oracle             # Provide the username who owns the Oracle Installations.
 oracle_group: oinstall    	# Primary group for oracle_user.
 oracle_stage: /tmp 		# Provide path on the target AIX lpar to stage response files.
-oracle_base: /u01/app/oracle
-oracle_dbf_dir_asm: '+DATA1'                      # Provide ASM diskgroup name to store datafiles.
+oracle_base: <your_oracle_base>
+oracle_dbf_dir_asm: '<your_asm_diskgroup>'            # Provide ASM diskgroup name to store datafiles.
 
 # This is an example layout to create a database.
 oracle_databases:                                     # Dictionary describing the databases to be installed.
       - home: db1                                     # 'Last' directory in ORACLE_HOME path (e.g /u01/app/oracle/db1)
-        oracle_version_db: 19c                  # Oracle version. Ex:For 12cR1 - 12.1.0.2, 19c
-        oracle_home: /u01/db19c_2               # Oracle Home path.
-        oracle_db_name: testdb                         # Provide Database name.
+        oracle_version_db: 19c                        # Oracle version. Ex:For 12cR1 - 12.1.0.2, 19c
+        oracle_home: <your_oracle_home>               # Oracle Home path.
+        oracle_db_name: <your_db_name>                # Provide Database name.
         oracle_db_type: SI                           # Type of database (RAC,RACONENODE,SI)
         is_container: True                            # (true/false) Is the database a container database
-        pdb_prefix: testpdb                            # Provide Pluggable database name.
+        pdb_prefix: <your_pdb_prefix>                 # Provide Pluggable database name.
         num_pdbs: 1                                   # Number of pluggable databases.
         storage_type: ASM                              # Database storage to be used. ASM or FS. ASM mandatory for RAC DB type.
         redolog_size_in_mb: 50                        # Redolog size in MB

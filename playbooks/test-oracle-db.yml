@@ -14,7 +14,7 @@
         db_name: prod
         sid: prod
         sys_password: "{{ default_dbpass }}"
-        hostname: 129.40.76.242
+        hostname: <your_database_host>
         port: 1521
         state: started
       environment:

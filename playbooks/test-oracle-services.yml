@@ -9,8 +9,8 @@
       oracle_services:
         name: ORACLEDB_TEST_SVC
         oracle_home: ""
-        database_name: prod
-        hostname: 129.40.76.242
+        database_name: <your_db_name>
+        hostname: <your_database_host>
         port: 1521
         service_name: prod
         user: sys

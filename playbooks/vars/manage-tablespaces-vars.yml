@@ -1,5 +1,5 @@
-hostname: 129.40.76.242                        # AIX hostname where the Database is running.
-service_name: prod                             # Database service name.
+hostname: <your_database_host>                 # AIX hostname where the Database is running.
+service_name: <your_service_name>              # Database service name.
 listener_port: 1521                            # Database port number.
 # oracle_db_home not needed - oracle_tablespace module uses Thin mode (pure Python, no Oracle client required)
 
