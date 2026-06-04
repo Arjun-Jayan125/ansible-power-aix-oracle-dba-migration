@@ -3,6 +3,10 @@ playbooks/test-oracle-ldapuser.yml
 playbooks/test-oracle-services.yml
 playbooks/test-oracle-profile.yml
 playbooks/test-oracle-privs.yml
+playbooks/test-oracle-datapatch.yml
+playbooks/test-oracle-db-create.yml
+playbooks/test-oracle-db-delete.yml
+playbooks/test-oracle-db.yml
 
 # Python cache
 __pycache__/
